@@ -1,3 +1,8 @@
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+
+
 import { Inngest } from "inngest";
 import connectDb from "./db";
 

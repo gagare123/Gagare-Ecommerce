@@ -1,15 +1,13 @@
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-
-
-
 import { Inngest } from "inngest";
 import connectDb from "./db";
 
-// Create Inngest client
-export const inngest = new Inngest({ id: "quickcart-next" });
+// Create Inngest client with explicit keys
+export const inngest = new Inngest({
+  id: "quickcart-next",
+  eventKey: process.env.INNGEST_EVENT_KEY,
+  signingKey: process.env.INNGEST_SIGNING_KEY,
+});
 
-// Inngest Function — CREATE USER
 export const syncUserCreation = inngest.createFunction(
   { id: "sync-user-from-clerk" },
   { event: "clerk/user.created" },

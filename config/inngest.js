@@ -4,8 +4,7 @@ import connectDb from "./db";
 // Create Inngest client with explicit keys
 export const inngest = new Inngest({
   id: "quickcart-next",
-  eventKey: process.env.INNGEST_EVENT_KEY,
-  signingKey: process.env.INNGEST_SIGNING_KEY,
+  
 });
 
 export const syncUserCreation = inngest.createFunction(

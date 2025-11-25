@@ -2,8 +2,9 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 import { serve } from "inngest/next";
-import { cxreateUserOder, inngest } from "@/config/inngest";
 import {
+  inngest,
+  createUserOrder,
   syncUserCreation,
   syncUserUpdation,
   syncUserDeletion,
@@ -15,6 +16,6 @@ export const { GET, POST } = serve({
     syncUserCreation,
     syncUserUpdation,
     syncUserDeletion,
-    cxreateUserOder,
+    createUserOrder,
   ],
 });

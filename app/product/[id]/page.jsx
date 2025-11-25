@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { assets } from "@/assets/assets";
 import ProductCard from "@/components/ProductCard";
 import Navbar from "@/components/Navbar";
@@ -8,26 +8,27 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import Loading from "@/components/Loading";
 import { useAppContext } from "@/context/AppContext";
-import React from "react";
 
 const Product = () => {
   const { id } = useParams();
-
   const { products, router, addToCart } = useAppContext();
 
   const [mainImage, setMainImage] = useState(null);
   const [productData, setProductData] = useState(null);
 
-  const fetchProductData = async () => {
-    const product = products.find((product) => product._id === id);
-    setProductData(product);
-  };
+  // ✅ wrap function with useCallback
+  const fetchProductData = useCallback(() => {
+    const product = products.find((p) => p._id === id);
+    setProductData(product || null);
+  }, [id, products]);
 
   useEffect(() => {
     fetchProductData();
-  }, [id, products.length]);
+  }, [fetchProductData]); // ✅ only dependency is now fetchProductData
 
-  return productData ? (
+  if (!productData) return <Loading />;
+
+  return (
     <>
       <Navbar />
       <div className="px-6 md:px-16 lg:px-32 pt-14 space-y-10">
@@ -36,7 +37,7 @@ const Product = () => {
             <div className="rounded-lg overflow-hidden bg-gray-500/10 mb-4">
               <Image
                 src={mainImage || productData.image[0]}
-                alt="alt"
+                alt={productData.name}
                 className="w-full h-auto object-cover mix-blend-multiply"
                 width={1280}
                 height={720}
@@ -52,7 +53,7 @@ const Product = () => {
                 >
                   <Image
                     src={image}
-                    alt="alt"
+                    alt={productData.name}
                     className="w-full h-auto object-cover mix-blend-multiply"
                     width={1280}
                     height={720}
@@ -68,31 +69,10 @@ const Product = () => {
             </h1>
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-0.5">
-                <Image
-                  className="h-4 w-4"
-                  src={assets.star_icon}
-                  alt="star_icon"
-                />
-                <Image
-                  className="h-4 w-4"
-                  src={assets.star_icon}
-                  alt="star_icon"
-                />
-                <Image
-                  className="h-4 w-4"
-                  src={assets.star_icon}
-                  alt="star_icon"
-                />
-                <Image
-                  className="h-4 w-4"
-                  src={assets.star_icon}
-                  alt="star_icon"
-                />
-                <Image
-                  className="h-4 w-4"
-                  src={assets.star_dull_icon}
-                  alt="star_dull_icon"
-                />
+                {Array(4).fill(0).map((_, i) => (
+                  <Image key={i} className="h-4 w-4" src={assets.star_icon} alt="star" />
+                ))}
+                <Image className="h-4 w-4" src={assets.star_dull_icon} alt="star dull" />
               </div>
               <p>(4.5)</p>
             </div>
@@ -109,11 +89,11 @@ const Product = () => {
                 <tbody>
                   <tr>
                     <td className="text-gray-600 font-medium">Brand</td>
-                    <td className="text-gray-800/50 ">Generic</td>
+                    <td className="text-gray-800/50">Generic</td>
                   </tr>
                   <tr>
                     <td className="text-gray-600 font-medium">Color</td>
-                    <td className="text-gray-800/50 ">Multi</td>
+                    <td className="text-gray-800/50">Multi</td>
                   </tr>
                   <tr>
                     <td className="text-gray-600 font-medium">Category</td>
@@ -142,11 +122,12 @@ const Product = () => {
             </div>
           </div>
         </div>
+
+        {/* Featured products */}
         <div className="flex flex-col items-center">
           <div className="flex flex-col items-center mb-4 mt-16">
             <p className="text-3xl font-medium">
-              Featured{" "}
-              <span className="font-medium text-orange-600">Products</span>
+              Featured <span className="font-medium text-orange-600">Products</span>
             </p>
             <div className="w-28 h-0.5 bg-orange-600 mt-2"></div>
           </div>
@@ -162,9 +143,8 @@ const Product = () => {
       </div>
       <Footer />
     </>
-  ) : (
-    <Loading />
   );
 };
 
 export default Product;
+

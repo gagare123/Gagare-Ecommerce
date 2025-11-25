@@ -5,8 +5,9 @@ import Order from "@/models/Order";
 // Create Inngest client with explicit keys
 export const inngest = new Inngest({
   id: "quickcart-next",
-  
+  eventKey: process.env.INNGEST_EVENT_KEY
 });
+
 
 export const syncUserCreation = inngest.createFunction(
   { id: "sync-user-from-clerk" },

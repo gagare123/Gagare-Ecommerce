@@ -4,6 +4,11 @@ import { NextResponse } from "next/server";
 const isProtectedRoute = createRouteMatcher(["/dashboard(.*)"]);
 
 export default clerkMiddleware((auth, req) => {
+  // Skip Clerk middleware for Inngest endpoint
+  if (req.nextUrl.pathname === "/api/inngest") {
+    return NextResponse.next();
+  }
+
   if (isProtectedRoute(req)) {
     auth().protect();
   }

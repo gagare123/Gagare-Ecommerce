@@ -16,7 +16,6 @@ const Product = () => {
   const [mainImage, setMainImage] = useState(null);
   const [productData, setProductData] = useState(null);
 
-  // ✅ wrap function with useCallback
   const fetchProductData = useCallback(() => {
     const product = products.find((p) => p._id === id);
     setProductData(product || null);

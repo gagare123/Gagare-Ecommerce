@@ -12,6 +12,8 @@ const OrderSummary = () => {
     getCartAmount,
     getToken,
     user,
+    cartItems,        // ← Add this
+    setCartItems,     // ← Add this
   } = useAppContext();
 
   const [selectedAddress, setSelectedAddress] = useState(null);
@@ -42,7 +44,7 @@ const OrderSummary = () => {
     if (user) {
       fetchUserAddresses();
     }
-  }, [user, fetchUserAddresses]); // ✅ added fetchUserAddresses as dependency
+  }, [user, fetchUserAddresses]);
 
   const handleAddressSelect = (address) => {
     setSelectedAddress(address);
@@ -50,7 +52,40 @@ const OrderSummary = () => {
   };
 
   const createOrder = async () => {
-    // implement order creation logic
+    try {
+      if (!selectedAddress) {
+        return toast.error('Please select an address');
+      }
+
+      let cartItemsArry = Object.keys(cartItems).map((key) =>
+        ({ product: key, quantity: cartItems[key] })
+      );
+      cartItemsArry = cartItemsArry.filter(item => item.quantity > 0); // ← Fixed typo: "fiter" to "filter"
+
+      if (cartItemsArry.length === 0) {
+        return toast.error('Cart is empty');
+      }
+
+      const token = await getToken();
+
+      const { data } = await axios.post('/api/order/create', {
+        address: selectedAddress._id,
+        items: cartItemsArry
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (data.success) {
+        toast.success(data.message);
+        setCartItems({});
+        router.push('/order-placed');
+      } else {
+        toast.error(data.message);
+      }
+
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   return (
@@ -173,4 +208,3 @@ const OrderSummary = () => {
 };
 
 export default OrderSummary;
-

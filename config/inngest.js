@@ -72,7 +72,6 @@ export const syncUserDeletion = inngest.createFunction(
   }
 );
 
-
 export const createUserOrder = inngest.createFunction(
   {
     id: 'create-user-order',
@@ -83,17 +82,22 @@ export const createUserOrder = inngest.createFunction(
   },
   { event: 'order/created' },
   async ({ events }) => {
-    const orders = events.map((event) => ({
-      userId: event.data.userId,
-      items: event.data.items,
-      amount: event.data.amount,
-      address: event.data.address,
-      date: event.data.date
-    }));
-
     await connectDb();
-    await Order.insertMany(orders);
 
-    return { success: true, processed: orders.length };
+    // Use Promise.all with Order.create for proper validation and type conversion
+    const orderPromises = events.map((event) => 
+      Order.create({
+        userId: event.data.userId,
+        items: event.data.items,
+        amount: event.data.amount,
+        address: event.data.address, // ← Mongoose auto-converts to ObjectId
+        date: event.data.date
+      })
+    );
+
+    const createdOrders = await Promise.all(orderPromises);
+
+    return { success: true, processed: createdOrders.length };
   }
 );
+
